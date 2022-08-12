@@ -12,6 +12,7 @@ import threading
 COM = "COM13"
 SSID = "AMA_CDUT"
 PWD = "12356789"
+BR = 921600
 
 LIVE = True
 
@@ -30,7 +31,7 @@ def main():
     inputs = input("Input COM port for communication (default {}): ".format(COM))
     if inputs:
         COM = inputs
-    clt = HTSocket(COM)
+    clt = HTSocket(COM, BR)
     clt.connect()
     threading.Thread(target=minicom_thread, args=(clt,)).start()
 
