@@ -66,6 +66,9 @@ def main():
         y3 = []
         lpf1 = 0
         lpf2 = 0
+        lpf21, lpf22, lpf23, lpf24 = (0, 0, 0, 0)
+
+        ymax = []
 
         if num == 4:
             continue
@@ -74,6 +77,7 @@ def main():
         first_line = True
         last_x = 0
         current_x = 0
+        cnt = 0
         while True:
             line = f.read(18)
             if line:
@@ -89,16 +93,26 @@ def main():
                         first_line = False
                         data_raw = int(raw[num])
                         y1.append(data_raw)
-                        y2.append(lpf1)
+                        y2.append(lpf2)
                         y3.append(lpf2)
+                        ymax.append(lpf2)
                     else:
                         x.append(float(raw[0]))
                         data_raw = int(raw[num])
-                        lpf1 += 0.3 * (data_raw - lpf1)
-                        lpf2 += 0.3 * (lpf1 - lpf2)
+                        lpf1 += 0.15 * (data_raw - lpf1)
+                        lpf21 += 0.15 * (lpf1 - lpf21)
+                        lpf22 += 0.15 * (lpf21 - lpf22)
+                        lpf23 += 0.15 * (lpf22 - lpf23)
+                        lpf24 += 0.15 * (lpf23 - lpf24)
+                        lpf2 += 0.15 * (lpf24 - lpf2)
+                        if lpf2 > ymax[cnt]:
+                            ymax.append(lpf2)
+                        else:
+                            ymax.append(0.992 * ymax[cnt])
                         y1.append(data_raw)
-                        y2.append(lpf1)
-                        y3.append(lpf2)
+                        y2.append(lpf2)
+                        y3.append(ymax[cnt + 1])
+                        cnt += 1
                 except:
                     continue
             else:
