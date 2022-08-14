@@ -69,6 +69,8 @@ def main():
         lpf21, lpf22, lpf23, lpf24 = (0, 0, 0, 0)
 
         ymax = []
+        trig = 0
+        last_lpf2 = 0
 
         if num == 4:
             continue
@@ -96,22 +98,33 @@ def main():
                         y2.append(lpf2)
                         y3.append(lpf2)
                         ymax.append(lpf2)
+                        last_lpf2 = lpf2
                     else:
                         x.append(float(raw[0]))
                         data_raw = int(raw[num])
-                        lpf1 += 0.15 * (data_raw - lpf1)
-                        lpf21 += 0.15 * (lpf1 - lpf21)
-                        lpf22 += 0.15 * (lpf21 - lpf22)
-                        lpf23 += 0.15 * (lpf22 - lpf23)
-                        lpf24 += 0.15 * (lpf23 - lpf24)
-                        lpf2 += 0.15 * (lpf24 - lpf2)
+                        lpf1 += 0.5 * (data_raw - lpf1)
+                        lpf21 += 0.5 * (lpf1 - lpf21)
+                        lpf22 += 0.5 * (lpf21 - lpf22)
+                        lpf23 += 0.5 * (lpf22 - lpf23)
+                        lpf24 += 0.5 * (lpf23 - lpf24)
+                        lpf2 += 0.5 * (lpf24 - lpf2)
                         if lpf2 > ymax[cnt]:
                             ymax.append(lpf2)
                         else:
-                            ymax.append(0.992 * ymax[cnt])
+                            ymax.append(0.98 * ymax[cnt])
+                            #ymax.append(lpf2)
+
+                        if cnt < 22:
+                            trig = 0
+                        else:
+                            if max(ymax[-22:-1]) - min(ymax[-22:-1]) > 80 and ymax[-22:-1].index(max(ymax[-22:-1])) > ymax[-22:-1].index(min(ymax[-22:-1])):
+                                trig = 1000
+                            else:
+                                trig = 0
+
                         y1.append(data_raw)
-                        y2.append(lpf2)
-                        y3.append(ymax[cnt + 1])
+                        y2.append(ymax[cnt + 1])
+                        y3.append(trig)
                         cnt += 1
                 except:
                     continue
