@@ -135,7 +135,7 @@ def main():
         plt.title(TITLES[index - 1])
         plt.plot(x, y1, "green", alpha=0.5)
         plt.plot(x, y2, "blue", alpha=0.8)
-        plt.plot(x, y3, "red")
+        #plt.plot(x, y3, "red")
 
         x_major_locator = plt.MultipleLocator(1)
         ax = plt.gca()
