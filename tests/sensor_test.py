@@ -8,9 +8,9 @@
 import time
 import struct
 import matplotlib.pyplot as plt
-from i2cylib.serial import HTSocket
+from i2cylib.serial import HTSocket, getComDevice
 
-COM = "COM13"
+COM = getComDevice(("CH340", "CH9102"))[0]
 BR = 921600
 ADDR = b"\xcb\x01"
 

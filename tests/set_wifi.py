@@ -4,14 +4,14 @@
 # Project: ESP32S3LockingLock
 # Filename: set_wifi
 # Created on: 2022/7/12
-
+from i2cylib.serial import getComDevice
 from i2cylib.serial import HTSocket
 import time
 import threading
 
-COM = "COM13"
-SSID = "AMA_CDUT"
-PWD = "12356789"
+COM = getComDevice(("CH340", "CH9102"))[0]
+SSID = "Icy's Pipbuck"
+PWD = "_C4o0d9y6#"
 BR = 921600
 
 LIVE = True
@@ -21,7 +21,7 @@ def minicom_thread(clt):
     assert isinstance(clt, HTSocket)
     while LIVE:
         try:
-            print(clt.client.read(1).decode(), end="")
+            print(clt.client.read(1).decode("utf-8"), end="")
         except:
             continue
 
