@@ -13,6 +13,7 @@ import time
 import threading
 
 FEEDBACK_TOPIC = "feedback"
+CMD_TOPIC = "cmd"
 
 
 class PahoMqttSessionFlags(list):
@@ -49,12 +50,14 @@ class LLMqttClient:
     def __init__(self, parent, device_topic_root, watchdog_timeout=30):
         assert isinstance(parent, LLMqttAPI)
         self.__parent = parent
-        self.__client = parent.getMqttClient()
+        self.__client = parent.getClient()
+        assert isinstance(self.__client, client.Client)
         self.topic_root = "/" + "/".join([ele for ele in device_topic_root.split('/') if ele])
+
         self.__client.subscribe(self.topic_root + "/" + FEEDBACK_TOPIC)
 
         self.logger = parent.logger
-        self.__log_header = "[{}]".format(self.topic_root)
+        self.__log_header = "[MQTT] [{}]".format(self.topic_root)
         self.is_online = False
         self.__online_wdog_t0 = 0
         self.watchdog_timeout = watchdog_timeout
@@ -78,6 +81,23 @@ class LLMqttClient:
 
     def __feedWatchdog(self):
         self.__online_wdog_t0 = time.time()
+
+    def __encodePackage(self, cmd_id, payload):
+        status = False
+        data = b""
+        try:
+            data += bytes((self.__flow_cnt,))
+            self.__flow_cnt += 1
+            data += bytes((cmd_id,))
+            data += int(len(payload)).to_bytes(2, "big", signed=False)
+            data += payload
+            data += bytes((sum(data) % 256,))
+            status = True
+        except Exception as err:
+            self.logger.WARNING("{} [decoder] failed to encode package, {}, raw hex: {}".format(
+                self.__log_header, err, data.hex()))
+
+        return status, data
 
     def __decodePackage(self, data):
         status = False
@@ -103,6 +123,32 @@ class LLMqttClient:
             return
 
         self.logger.DEBUG("{} [handler] received message: {}".format(self.__log_header, msg.payload.hex()))
+
+        status, cmd_id, payload = self.__decodePackage(msg.payload)
+
+        if status:
+            if cmd_id == 0x00:  # heartbeat
+                self.__feedWatchdog()
+
+            elif cmd_id == 0x01:  # time calibration
+                self.caliDeviceTime()
+
+            elif cmd_id == 0x02:  # request configuration
+                self.configurateDevice()
+
+
+
+    def caliDeviceTime(self):
+        status, data = self.__encodePackage(0x11, int(time.time()).to_bytes(4, "big", signed=True))
+        if status:
+            self.__client.publish(self.topic_root + "/" + CMD_TOPIC, data)
+            self.logger.DEBUG("{} [cmd] requesting time calibration".format(self.__log_header))
+
+    def configurateDevice(self):
+        status, data = self.__encodePackage(0x11, int(time.time()).to_bytes(4, "big", signed=True))
+        if status:
+            self.__client.publish(self.topic_root + "/" + CMD_TOPIC, data)
+            self.logger.DEBUG("{} [cmd] requesting time calibration".format(self.__log_header))
 
 
 class LLMqttAPI(Server):

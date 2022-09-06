@@ -10,8 +10,12 @@ import time
 import threading
 
 COM = getComDevice(("CH340", "CH9102"))[0]
-SSID = "Icy's Pipbuck"
-PWD = "_C4o0d9y6#"
+
+SSID = "AMA_CDUT"
+PWD = "12356789"
+MQTT_USER = "icy"
+MQTT_PWD = "__C4o0d9y6#"
+
 BR = 921600
 
 LIVE = True
@@ -51,6 +55,17 @@ def main():
 
             print("requesting connect...")
             clt.send(b"\xcb\xcd", b"\x12")
+
+            print("sending mqtt username...")
+            clt.send(b"\xcb\xcd", b"\x13" + MQTT_USER.encode() + b"\x00")
+
+            time.sleep(0.5)
+
+            print("sending mqtt password...")
+            clt.send(b"\xcb\xcd", b"\x14" + MQTT_PWD.encode() + b"\x00")
+
+            time.sleep(0.5)
+
         except KeyboardInterrupt:
             break
 
