@@ -7,6 +7,7 @@
 
 
 import json
+import os
 
 
 class DeviceConfig:
@@ -31,8 +32,8 @@ class DeviceConfig:
 
     def save_config(self):
         self.__file_io = open(self.__file_io.name, "r+")
-
         json_dict = json.load(self.__file_io)
+        self.__file_io.close()
 
         new_device_dict = {self.device_index: {
             "mqtt_topic_root": self.root_topic,
@@ -50,9 +51,39 @@ class Config(list):
 
     def __init__(self, filename):
         super(Config, self).__init__([])
-        self.__file_io = open(filename, "r+")
-        self.__file_io.close()
-        self.__current_device_cnt = 0
+
+        if os.path.exists(filename) and os.path.isfile(filename):
+            self.__file_io = open(filename, "r+")
+            json_dict = json.load(self.__file_io)
+
+            self.mqtt_host = json_dict["mqtt_host"]
+            self.mqtt_port = json_dict["mqtt_port"]
+            self.mqtt_user = json_dict["mqtt_user"]
+            self.mqtt_password = json_dict["mqtt_password"]
+            self.i2tcp_port = json_dict["i2tcp_port"]
+            self.i2tcp_psk = json_dict["i2tcp_psk"]
+            self.log_file = json_dict["log_file"]
+            self.log_level = json_dict["log_level"]
+            self.mqtt_client_id = json_dict["mqtt_client_id"]
+
+            self.__file_io.close()
+
+        else:
+            self.__file_io = open(filename, "w")
+            self.__file_io.close()
+            self.mqtt_host = "127.0.0.1"
+            self.mqtt_port = 1883
+            self.mqtt_user = "admin"
+            self.mqtt_password = "admin"
+            self.mqtt_client_id = "I2LL-Service"
+            self.i2tcp_port = 8421
+            self.i2tcp_psk = "i2tcppsk"
+            self.log_file = "i2ll.log"
+            self.log_level = "DEBUG"
+
+            self.saveConfig(new=True)
+
+        self.__current_device_cnt = -1
         self.__loadDeviceConfig()
 
     def __str__(self):
@@ -110,6 +141,33 @@ class Config(list):
 
         return ret
 
+    def saveConfig(self, new=False):
+        if new:
+            json_dict = {}
+        else:
+            self.__file_io = open(self.__file_io.name, "r+")
+            json_dict = json.load(self.__file_io)
+            self.__file_io.close()
+
+        new_device_dict = {
+            "mqtt_host": self.mqtt_host,
+            "mqtt_port": self.mqtt_port,
+            "mqtt_user": self.mqtt_user,
+            "mqtt_password": self.mqtt_password,
+            "i2tcp_port": self.i2tcp_port,
+            "i2tcp_psk": self.i2tcp_psk,
+            "log_file": self.log_file,
+            "log_level": self.log_level,
+            "mqtt_client_id": self.mqtt_client_id
+        }
+        json_dict.update(new_device_dict)
+        if new:
+            json_dict.update({"devices": {}})
+
+        self.__file_io = open(self.__file_io.name, "w")
+        json.dump(json_dict, self.__file_io, indent=2)
+        self.__file_io.close()
+
 
 if __name__ == '__main__':
     conf = Config("sample/config.json")
@@ -117,7 +175,8 @@ if __name__ == '__main__':
     for dev_conf in conf:
         print("find device {} in config".format(dev_conf))
 
-    print("adding new device")
+    print("adding 2 new device")
+    conf.addDevice()
     conf.addDevice()
     print("test file device count: {}".format(len(conf)))
     for dev_conf in conf:
