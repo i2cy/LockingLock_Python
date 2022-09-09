@@ -75,38 +75,42 @@ class LLMqttClient:
         self.watchdog_timeout = watchdog_timeout
         self.__flow_cnt = 0
         self.__last_received_flow_cnt = 0
-        self.__flag_topic_ok = False
-
-        try:
-            self.__client.subscribe(self.topic_root + "/" + FEEDBACK_TOPIC)
-            self.logger.INFO("{} feedback topic \"{}\" subscribed".format(
-                self.__log_header, self.topic_root + "/" + FEEDBACK_TOPIC))
-            self.__flag_topic_ok = True
-        except Exception as err:
-            self.logger.ERROR("{} failed to subscribe topic, {}".format(self.__log_header, err))
+        self.keygen = DynKey16(device_config.dynkey16_psk.encode())
+        self.live = True
 
         threading.Thread(target=self.__onlineWatchdog).start()
 
     def __onlineWatchdog(self):
-        while self.__parent.live:
-            last = self.is_online
-            self.is_online = time.time() - self.__online_wdog_t0 < self.watchdog_timeout
-            if last != self.is_online:
-                if self.is_online:
-                    self.logger.INFO("{} device is now online".format(
-                        self.__log_header))
-                else:
-                    self.logger.WARNING("{} device is now offline".format(
-                        self.__log_header))
+        cnt = 0
+        subscribed = False
+        while self.__parent.live and self.live:
+            if cnt < 20:
+                time.sleep(0.1)
+                cnt += 1
+            else:
+                if not subscribed and self.__client.is_connected():
+                    try:
+                        self.__client.subscribe(self.topic_root + "/" + FEEDBACK_TOPIC)
+                        self.logger.INFO("{} feedback topic \"{}\" subscribed".format(
+                            self.__log_header, self.topic_root + "/" + FEEDBACK_TOPIC))
+                        subscribed = True
+                    except Exception as err:
+                        self.logger.ERROR("{} failed to subscribe topic, {}".format(self.__log_header, err))
 
-            if not self.__flag_topic_ok:
-                try:
-                    self.__client.subscribe(self.topic_root + "/" + FEEDBACK_TOPIC)
-                    self.__flag_topic_ok = True
-                except Exception as err:
-                    self.logger.ERROR("{} failed to subscribe topic, {}".format(self.__log_header, err))
+                if subscribed:
+                    subscribed = self.__client.is_connected()
+                last = self.is_online
+                self.is_online = time.time() - self.__online_wdog_t0 < self.watchdog_timeout
+                if last != self.is_online:
+                    if self.is_online:
+                        self.logger.INFO("{} device is now online".format(
+                            self.__log_header))
+                    else:
+                        self.logger.WARNING("{} device is now offline".format(
+                            self.__log_header))
 
-            time.sleep(2)
+                cnt = 0
+                time.sleep(0.1)
 
     def __feedWatchdog(self):
         self.__online_wdog_t0 = time.time()
@@ -156,8 +160,9 @@ class LLMqttClient:
         status, cmd_id, payload = self.__decodePackage(msg.payload)
 
         if status:
+            self.__feedWatchdog()
+
             if cmd_id == 0x00:  # heartbeat
-                self.__feedWatchdog()
                 self.__deviceTimeCheck(payload)
 
             elif cmd_id == 0x01:  # time calibration
@@ -175,9 +180,8 @@ class LLMqttClient:
 
     def __storageOffset(self, feedback_payload):
         offset = int().from_bytes(feedback_payload, "little", signed=False)
-        self.logger.INFO("{} device motor calibrated, offset: {}".format(self.__log_header, offset))
+        self.logger.INFO("{} motor calibrated, offset: {}".format(self.__log_header, offset))
         self.device_config.storage["motor_offset"] = offset
-
 
     def __deviceTimeCheck(self, feedback_payload):
         now = time.time()
@@ -202,18 +206,36 @@ class LLMqttClient:
 
     def configurateDevice(self):
         status, data = self.__encodePackage(0x12,
-                                            int(self.device_config.storage["motor_offset"]).to_bytes(4, "big",
+                                            int(self.device_config.storage["motor_offset"]).to_bytes(4, "little",
                                                                                                      signed=True))
         if status:
             self.__client.publish(self.topic_root + "/" + CMD_TOPIC, data)
             self.logger.DEBUG("{} [cmd] configuring device".format(self.__log_header))
 
     def caliMotorOffset(self):
-        status, data = self.__encodePackage(0x13, int(time.time()).to_bytes(4, "big", signed=True))
+        status, data = self.__encodePackage(0x13, int(time.time()).to_bytes(4, "little", signed=True))
 
         if status:
             self.__client.publish(self.topic_root + "/" + CMD_TOPIC, data)
             self.logger.DEBUG("{} [cmd] calibrating motor offset".format(self.__log_header))
+
+    def unlock(self):
+        if self.is_online:
+            status, data = self.__encodePackage(0x20, int(time.time()).to_bytes(4, "little", signed=True))
+
+            if status:
+                self.__client.publish(self.topic_root + "/" + CMD_TOPIC, data)
+                self.logger.DEBUG("{} [cmd] requesting unlock remotely".format(self.__log_header))
+
+        return self.keygen.keygen()
+
+    def ringMotor(self):
+        status, data = self.__encodePackage(0x21, int(time.time()).to_bytes(4, "little", signed=True))
+
+        if status:
+            self.__client.publish(self.topic_root + "/" + CMD_TOPIC, data)
+            self.logger.DEBUG("{} [cmd] requesting motor ringing".format(self.__log_header))
+
 
 class LLServer(Server):
 
@@ -240,13 +262,21 @@ class LLServer(Server):
         self.connection_status = self.__mqtt_flag_dict[255]
 
         self.__flag_mqtt_loop_running = False
+        self.__flag_dead = False
+
+    def __iter__(self):
+        return self.__ll_clients
+
+    def __len__(self):
+        return len(self.__ll_clients)
+
+    def __getitem__(self, item):
+        return self.__ll_clients[item]
 
     def __onConnect(self, clt, userdata, flags, rc):
         self.connection_status = self.__mqtt_flag_dict[rc]
         if self.connection_status.is_connected:
             self.logger.INFO("[MQTT] successfully connected to host")
-            for device in self.config:
-                self.__ll_clients.append(LLMqttClient(self, device))
         else:
             self.logger.ERROR("[MQTT] failed to connect to MQTT server, {}, retrying".format(
                 self.connection_status.status))
@@ -284,9 +314,13 @@ class LLServer(Server):
         self.threads.update({"mqttClientAutoReconnect": False})
 
     def start(self, port=None):
+        if self.__flag_dead:
+            raise Exception("dead LL server")
         super(LLServer, self).start(port)
 
         threading.Thread(target=self.__autoReconnectThread).start()
+        for device in self.config:
+            self.__ll_clients.append(LLMqttClient(self, device))
 
     def kill(self):
         super(LLServer, self).kill()
@@ -300,6 +334,8 @@ class LLServer(Server):
             assert isinstance(con, LLMqttClient)
             ret.append(con.topic_root)
 
+        return ret
+
     def getDeviceClient(self, root_topic):
         for con in self.__ll_clients:
             assert isinstance(con, LLMqttClient)
@@ -311,7 +347,10 @@ if __name__ == '__main__':
     ll = LLServer(Config("sample/config.json"))
     ll.start()
 
+    dev = ll[0]
+    assert isinstance(dev, LLMqttClient)
 
+    dev.ringMotor()
 
     try:
         input("")
