@@ -8,8 +8,9 @@
 
 from i2cylib.crypto import DynKey16
 from paho.mqtt import client
-from i2cylib.network.I2TCP import Server
+from i2cylib.network.I2TCP import Server, Handler
 from i2cylib.utils import Logger
+import json
 
 if __name__ == "__main__":
     from config import DeviceConfig, Config
@@ -287,6 +288,93 @@ class LLServer(Server):
             assert isinstance(con, LLMqttClient)
             con.messageHandler(message)
 
+    def __i2tcpHandlerThread(self):
+        self.threads.update({"i2tcpHandlerThread": True})
+
+        handlers = []
+        idle = False
+
+        while self.live:
+            con = self.get_connection(False)
+            if isinstance(con, Handler):
+                handlers.append(con)
+
+            if idle:
+                time.sleep(0.1)
+
+            idle = True
+
+            for con in handlers:
+                if con.live:
+                    pkg = con.get()
+                    if pkg is not None:
+                        idle = False
+                        cmd_id = pkg[0]
+                        payload = pkg[1:]
+
+                        if cmd_id == 0x01:
+                            ret = b"\xf1"
+                            ret += json.dumps(self.getAllMqttRootTopics()).encode("utf-8")
+                            con.send(ret)
+
+                        elif cmd_id == 0x10:
+                            ret = b"\x01"
+                            target_topic = payload.decode("utf-8")
+                            clt = self.getDeviceClient(target_topic)
+                            if clt is not None:
+                                ret += b"\x00"
+                            elif clt.is_online:
+                                ret += b"\x01"
+                            else:
+                                ret += b"\x00"
+                            con.send(ret)
+
+                        elif cmd_id == 0x11:
+                            ret = b"\xe1"
+                            target_topic = payload.decode("utf-8")
+                            clt = self.getDeviceClient(target_topic)
+                            if clt is not None:
+                                ret += json.dumps(clt.device_config.storage).encode("utf-8")
+                                con.send(ret)
+
+                        elif cmd_id == 0x20:
+                            ret = b"\x01\x01"
+                            target_topic = payload.split(b",")[0].decode("utf-8")
+                            json_dict = json.loads(payload[payload.index(b","):].decode("utf-8"))
+                            clt = self.getDeviceClient(target_topic)
+                            if clt is not None:
+                                clt.device_config.storage.update(json_dict)
+                                clt.configurateDevice()
+                                con.send(ret)
+
+                        elif cmd_id == 0x21:
+                            ret = b"\x01\x01"
+                            target_topic = payload.decode("utf-8")
+                            clt = self.getDeviceClient(target_topic)
+                            if clt is not None:
+                                clt.caliMotorOffset()
+                                con.send(ret)
+
+                        elif cmd_id == 0x22:
+                            ret = b"\xd2"
+                            target_topic = payload.decode("utf-8")
+                            clt = self.getDeviceClient(target_topic)
+                            if clt is not None:
+                                dynkey = clt.unlock()
+                                con.send(ret + dynkey)
+
+                        elif cmd_id == 0x23:
+                            ret = b"\x01\x01"
+                            target_topic = payload.decode("utf-8")
+                            clt = self.getDeviceClient(target_topic)
+                            if clt is not None:
+                                clt.ringMotor()
+                                con.send(ret)
+
+            handlers = [ele for ele in handlers if ele.live]
+
+        self.threads.update({"i2tcpHandlerThread": False})
+
     def __autoReconnectThread(self):
         self.threads.update({"mqttClientAutoReconnect": True})
         cnt = 50
@@ -321,9 +409,11 @@ class LLServer(Server):
         threading.Thread(target=self.__autoReconnectThread).start()
         for device in self.config:
             self.__ll_clients.append(LLMqttClient(self, device))
+        threading.Thread(target=self.__i2tcpHandlerThread).start()
 
     def kill(self):
         super(LLServer, self).kill()
+        self.__ll_clients.clear()
 
     def getMqttClient(self):
         return self.__client
@@ -337,6 +427,8 @@ class LLServer(Server):
         return ret
 
     def getDeviceClient(self, root_topic):
+        con: (LLMqttClient, None)
+
         for con in self.__ll_clients:
             assert isinstance(con, LLMqttClient)
             if con.topic_root in root_topic:
