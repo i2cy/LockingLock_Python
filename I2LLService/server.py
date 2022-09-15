@@ -250,7 +250,7 @@ class LLServer(Server):
         self.__mqtt_flag_dict = PahoMqttSessionFlags()
         logger = Logger(config.log_file, level=config.log_level)
 
-        super(LLServer, self).__init__(config.i2tcp_psk, config.i2tcp_port,
+        super(LLServer, self).__init__(config.i2tcp_psk.encode("utf-8"), config.i2tcp_port,
                                        max_connections, logger, secured_connection,
                                        max_buffer_size, watchdog_timeout)
         self.__client = client.Client(self.config.mqtt_client_id)
@@ -308,6 +308,9 @@ class LLServer(Server):
                 if con.live:
                     pkg = con.get()
                     if pkg is not None:
+                        con.logger.DEBUG("{} [I2LL] received command: {}".format(
+                            con.log_header, pkg.hex()))
+
                         idle = False
                         cmd_id = pkg[0]
                         payload = pkg[1:]
@@ -321,7 +324,7 @@ class LLServer(Server):
                             ret = b"\x01"
                             target_topic = payload.decode("utf-8")
                             clt = self.getDeviceClient(target_topic)
-                            if clt is not None:
+                            if clt is None:
                                 ret += b"\x00"
                             elif clt.is_online:
                                 ret += b"\x01"
