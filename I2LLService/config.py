@@ -20,7 +20,7 @@ class DeviceConfig:
             self.root_topic = "/esp32ll/dev_{}".format(device_index_str)
             self.dynkey16_psk = "dynkey16psk"
             self.storage = {"motor_offset": 0}
-            self.save_config()
+            self.saveConfig()
         else:
             self.root_topic = json_dict["devices"][device_index_str]["mqtt_topic_root"]
             self.dynkey16_psk = json_dict["devices"][device_index_str]["dynkey16_psk"]
@@ -30,7 +30,7 @@ class DeviceConfig:
     def __str__(self):
         return "<LL device, index: {}, topic: {}>".format(self.device_index, self.root_topic)
 
-    def save_config(self):
+    def saveConfig(self):
         self.__file_io = open(self.__file_io.name, "r+")
         json_dict = json.load(self.__file_io)
         self.__file_io.close()
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     print("editing new added device")
     dev_conf = conf.getDevice(-1)
     dev_conf.root_topic = "/test/topic/edtied"
-    dev_conf.save_config()
+    dev_conf.saveConfig()
 
     f = open("sample/config.json", "r")
     print("displaying config now:")

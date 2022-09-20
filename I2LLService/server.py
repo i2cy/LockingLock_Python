@@ -9,7 +9,7 @@
 from i2cylib.crypto import DynKey16
 from paho.mqtt import client
 from i2cylib.network.I2TCP import Server, Handler
-from i2cylib.utils import Logger
+from i2cylib.utils import Logger, get_args, DirTree, i2TecHome
 import json
 
 if __name__ == "__main__":
@@ -436,6 +436,147 @@ class LLServer(Server):
             assert isinstance(con, LLMqttClient)
             if con.topic_root in root_topic:
                 return con
+
+
+def manual():
+    print("""ESP32-S3 Locking Lock Cloud Service
+    
+    i2llserver [setup/config/init] [-c]
+    
+    Usage:
+        -c --config             - set config path
+        
+        setup config init       - initiate server with guidance
+    
+    Examples:
+    > i2llserver init
+    > i2llserver -c $HOME/.i2tec
+    
+    """)
+
+
+def main():
+    args = get_args()
+
+    root = DirTree(i2TecHome(), "i2ll")
+    root.fixPath(False)
+    config = root.join("config.json")
+    init = False
+
+    for opt in args:
+        if opt in ("-c", "--config"):
+            argv = DirTree(args[opt])
+            if not argv.exists():
+                print("warning: config \"{}\" dose not exists, falling back to default".format(argv))
+            else:
+                config = argv
+
+        if opt == 0:
+            argv = args[opt]
+            if argv in ("init", "setup", "config"):
+                init = True
+
+    if init:
+        create_new_config = True
+        if config.exists():
+            try:
+                conf = Config(config)
+                create_new_config = False
+            except Exception as err:
+                print("warning: config file corrupted, {}, should we replace it with a new one instead?".format(err))
+                choice = input("(input Y for yes, others for No): ").upper()
+                if choice in ("Y", "YES"):
+                    create_new_config = True
+                else:
+                    print("setup wizard will now exit, please edit the target config file to make it right")
+                    return
+
+        def edit_globals(conf_obj: Config):
+            print("1. Editing MQTT settings")
+            cin = input("  server host (input nothing for default: {}): ".format(conf_obj.mqtt_host))
+            if cin:
+                conf_obj.mqtt_host = cin
+
+            fail = True
+            while fail:
+                try:
+                    cin = input("  server port (input nothing for default: {}): ".format(conf_obj.mqtt_port))
+                    if cin:
+                        conf_obj.mqtt_port = int(cin)
+                    fail = False
+                except Exception as err:
+                    print("  error: please input the correct type of value")
+                    fail = True
+
+            cin = input("  username (input nothing for default: {}): ".format(
+                conf_obj.mqtt_user))
+            if cin:
+                conf_obj.mqtt_user = cin
+
+            cin = input("  password (input nothing for default: {}): ".format(
+                conf_obj.mqtt_password))
+            if cin:
+                conf_obj.mqtt_password = cin
+
+            cin = input("  client ID (input nothing for default: {}): ".format(
+                conf_obj.mqtt_client_id))
+            if cin:
+                conf_obj.mqtt_client_id = cin
+
+            print("2. Editing I2TCP settings")
+            fail = True
+            while fail:
+                try:
+                    cin = input("  listen port (input nothing for default: {}): ".format(conf_obj.i2tcp_port))
+                    if cin:
+                        conf_obj.i2tcp_port = int(cin)
+                    fail = False
+                except Exception as err:
+                    print("  error: please input the correct type of value")
+                    fail = True
+
+            cin = input("  PSK (input nothing for default: {}): ".format(
+                conf_obj.i2tcp_psk))
+            if cin:
+                conf_obj.i2tcp_psk = cin
+
+            print("3. Editing logging settings")
+            cin = input("  log filename (input nothing for default: {}): ".format(conf_obj.log_file))
+            if cin:
+                conf_obj.log_file = cin
+
+            fail = True
+            while fail:
+                try:
+                    cin = input("  log level (input nothing for default: {}): ".format(conf_obj.log_level))
+                    cin = cin.upper()
+                    assert cin in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+                    if cin:
+                        conf_obj.log_level = cin
+                    fail = False
+                except Exception as err:
+                    print("  error: please input correct value chose in DEBUG, INFO, WARNING, ERROR, CRITICAL")
+                    fail = True
+
+
+
+        if create_new_config:
+            if config.exists():
+                config.remove()
+            config.fixPath()
+            conf = Config(config)
+
+            edit_globals(conf)
+
+        else:
+            print("config file already exists")
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
