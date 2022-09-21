@@ -8,6 +8,7 @@
 
 from i2cylib.crypto import DynKey16
 from paho.mqtt import client
+from pathlib import Path
 from i2cylib.network.I2TCP import Server, Handler
 from i2cylib.utils import Logger, get_args, DirTree, i2TecHome
 import json
@@ -15,7 +16,7 @@ import json
 if __name__ == "__main__":
     from config import DeviceConfig, Config
 else:
-    from .config import DeviceConfig, Config
+    from i2llservice.config import DeviceConfig, Config
 
 import time
 import os
@@ -25,6 +26,8 @@ FEEDBACK_TOPIC = "data"
 CMD_TOPIC = "request"
 
 SYSTEMD_PATH = "/etc/systemd/system/i2llserver.service"
+NON_ROOT_SYSTEMD_PATH = DirTree(Path.home(), "i2llserver.service")
+NON_ROOT_AUTOINIT_PATH = DirTree(Path.home(), "enable_auto-startup_for_i2ll.sh")
 
 
 class PahoMqttSessionFlags(object):
@@ -499,19 +502,6 @@ def main():
             init = True
 
     if init:
-        create_new_config = True
-        if config.exists():
-            try:
-                Config(config)
-                create_new_config = False
-            except Exception as err:
-                print("warning: config file corrupted, {}, should we replace it with a new one instead?".format(err))
-                choice = input("(input Y for yes, others for No): ").upper()
-                if choice in ("Y", "YES"):
-                    create_new_config = True
-                else:
-                    print("setup wizard will now exit, please edit the target config file to make it right")
-                    return
 
         def edit_device(conf_obj: Config):
 
@@ -678,9 +668,84 @@ def main():
                     fail = True
 
         def add_systemd(config_path: DirTree):
+
             if os.name != "posix":
                 print("error: sorry, we are currently not supported for auto startup on other OS than Linux")
                 return
+            if DirTree("/usr/local/bin/i2llsrv").exists():
+                locate_executable = "/usr/local/bin/i2llsrv"
+            else:
+                locate_executable = Path(Path.home(), ".local/bin/i2llsrv").as_posix()
+
+            print("registering auto-startup for I2llServer")
+
+            payload = ("[Unit]\n"
+                       "Description=Locking Lock Cloud Service\n"
+                       "After=network.target\n"
+                       "\n"
+                       "[Service]\n"
+                       "User={}"
+                       "Group={}"
+                       "Type=simple\n"
+                       "DynamicUser=true\n"
+                       "Restart=on-failure\n"
+                       "ExecStart={} -c \"{}\"\n"
+                       "KillSignal=SIGINT\n"
+                       "TimeoutStopSec=15s\n"
+                       "RestartSec=15s\n"
+                       "\n"
+                       "[Install]\n"
+                       "WantedBy=multi-user.target\n"
+                       "Alias=i2llserver.service\n".format(os.popen("whoami").read(),
+                                                           os.popen("whoami").read(),
+                                                           locate_executable,
+                                                           config_path.asPosix()))
+
+            print(" -> generating systemd file...")
+            with open(NON_ROOT_SYSTEMD_PATH, "w") as f:
+                f.write(payload)
+                f.close()
+            print("  systemd service file generated to \"{}\"".format(NON_ROOT_SYSTEMD_PATH))
+
+            print(" actions from now on require sudo permission, you may need to enter your user password")
+
+            print(" -> moving file to \"/etc/systemd/system/i2llserver.service\"")
+            rc = os.system("mv \"{}\" /etc/systemd/system >/dev/null 2>/dev/null".format(NON_ROOT_SYSTEMD_PATH))
+            if rc:
+                rc = os.system(
+                    "sudo mv \"{}\" /etc/systemd/system >/dev/null 2>/dev/null".format(NON_ROOT_SYSTEMD_PATH))
+            if rc:
+                print("  warning: failed to move service file to /etc/systemd/system,"
+                      " permission denied or file already exists")
+                print(" -> generating setup script for sudoer to run")
+                with open(NON_ROOT_AUTOINIT_PATH, "w") as f:
+                    f.write("#!/bin/bash\n"
+                            "mv \"{}\" /etc/systemd/system\n"
+                            "systemctl enable i2llserver\n".format(NON_ROOT_SYSTEMD_PATH))
+                    f.close()
+
+                print("  one-shot script generated at \"{}\", "
+                      "run as root to finish auto-startup registration".format(NON_ROOT_AUTOINIT_PATH))
+            else:
+                print(" -> finishing registration")
+                rc = os.system("systemctl enable i2llserver >/dev/null 2>/dev/null")
+                if rc:
+                    os.system("sudo systemctl enable i2llserver >/dev/null 2>/dev/null")
+                print("  service registered, use \"service i2llserver start\" to start service")
+
+        create_new_config = True
+        if config.exists():
+            try:
+                Config(config)
+                create_new_config = False
+            except Exception as err:
+                print("warning: config file corrupted, {}, should we replace it with a new one instead?".format(err))
+                choice = input("(input Y for yes, others for No): ").upper()
+                if choice in ("Y", "YES"):
+                    create_new_config = True
+                else:
+                    print("setup wizard will now exit, please edit the target config file to make it right")
+                    return
 
         if create_new_config:
             if config.exists():
