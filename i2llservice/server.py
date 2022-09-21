@@ -15,7 +15,7 @@ import json
 if __name__ == "__main__":
     from config import DeviceConfig, Config
 else:
-    from config import DeviceConfig, Config
+    from .config import DeviceConfig, Config
 
 import time
 import os

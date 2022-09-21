@@ -13,7 +13,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="i2llserver",  # Replace with your own name
-    version="0.0.2",
+    version="0.0.3",
     author="I2cy Cloud",
     author_email="i2cy@outlook.com",
     description="Server of LockingLock project",
@@ -38,7 +38,7 @@ setuptools.setup(
     python_requires=">=3.6",
     entry_points={'console_scripts':
         [
-            "i2llsrv = i2llserver.server:main"
+            "i2llsrv = i2llservice.server:main"
         ]
     }
 )
