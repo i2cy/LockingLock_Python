@@ -5,6 +5,6 @@
 # Filename: main
 # Created on: 2022/9/21
 
-from server import *
+from i2llservice import server
 
-main()
+server.main()

@@ -16,7 +16,7 @@ import json
 if __name__ == "__main__":
     from config import DeviceConfig, Config
 else:
-    from i2llservice.config import DeviceConfig, Config
+    from .config import DeviceConfig, Config
 
 import time
 import os
@@ -249,12 +249,12 @@ class LLServer(Server):
     def __init__(self, config,
                  max_connections=20,
                  secured_connection=True, max_buffer_size=50,
-                 watchdog_timeout=20):
+                 watchdog_timeout=20, verbose=True):
         assert isinstance(config, Config)
 
         self.config = config
         self.__mqtt_flag_dict = PahoMqttSessionFlags()
-        logger = Logger(config.log_file, level=config.log_level)
+        logger = Logger(config.log_file, level=config.log_level, echo=verbose)
 
         super(LLServer, self).__init__(config.i2tcp_psk.encode("utf-8"), config.i2tcp_port,
                                        max_connections, logger, secured_connection,
@@ -455,11 +455,13 @@ class LLServer(Server):
 def manual():
     print("""ESP32-S3 Locking Lock Cloud Service
     
-    i2llserver [setup/config/init] [-c] [-h]
+    i2llserver [setup/config/init] [-c] [-v] [-h]
     
     Usage:
         -c --config             - set config path
-        
+
+        -v --verbose            - print log in stdio
+
         -h --help               - show this page
         
         setup config init       - initiate server with guidance
@@ -477,6 +479,7 @@ def main():
     root.fixPath(False)
     config = root.join("config.json")
     init = False
+    verb = False
 
     for opt in args:
         if opt in ("-c", "--config"):
@@ -489,6 +492,9 @@ def main():
         if opt in ("-h", "--help"):
             manual()
             return
+
+        if opt in ("-v", "--verbose"):
+            verb = True
 
         if opt == 0:
             argv = args[opt]
@@ -687,7 +693,6 @@ def main():
                        "User={}"
                        "Group={}"
                        "Type=simple\n"
-                       "DynamicUser=true\n"
                        "Restart=on-failure\n"
                        "ExecStart={} -c \"{}\"\n"
                        "KillSignal=SIGINT\n"
@@ -777,13 +782,18 @@ def main():
         return
 
     else:
-        ll_srv = LLServer(Config(config))
+        conf = Config(config)
+        if not verb:
+            print("server starting, log file is located in \"{}\", use Ctrl+C to stop".format(conf.log_file))
+        ll_srv = LLServer(conf, verbose=verb)
         ll_srv.start()
 
         try:
-            input("")
+            while True:
+                time.sleep(10)
         except KeyboardInterrupt:
             pass
+
         ll_srv.kill()
 
 

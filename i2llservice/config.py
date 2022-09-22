@@ -32,7 +32,7 @@ class DeviceConfig:
         return "<LL device, index: {}, topic: {}>".format(self.device_index, self.root_topic)
 
     def saveConfig(self):
-        self.__file_io = open(self.__file_io.name, "r+")
+        self.__file_io = open(self.__file_io.name, "r")
         json_dict = json.load(self.__file_io)
         self.__file_io.close()
 
@@ -54,7 +54,7 @@ class Config(list):
         super(Config, self).__init__([])
 
         if os.path.exists(filename) and os.path.isfile(filename):
-            self.__file_io = open(filename, "r+")
+            self.__file_io = open(filename, "r")
             json_dict = json.load(self.__file_io)
 
             self.mqtt_host = json_dict["mqtt_host"]
@@ -154,7 +154,7 @@ class Config(list):
         if new:
             json_dict = {}
         else:
-            self.__file_io = open(self.__file_io.name, "r+")
+            self.__file_io = open(self.__file_io.name, "r")
             json_dict = json.load(self.__file_io)
             self.__file_io.close()
 

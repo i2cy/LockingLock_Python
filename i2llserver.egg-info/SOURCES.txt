@@ -9,5 +9,4 @@ i2llserver.egg-info/top_level.txt
 i2llservice/__init__.py
 i2llservice/client.py
 i2llservice/config.py
-i2llservice/main.py
 i2llservice/server.py
