@@ -13,7 +13,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="i2llserver",  # Replace with your own name
-    version="1.0.0",
+    version="1.1.0",
     author="I2cy Cloud",
     author_email="i2cy@outlook.com",
     description="Server of LockingLock project",

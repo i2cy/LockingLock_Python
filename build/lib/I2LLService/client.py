@@ -126,3 +126,4 @@ class I2LLClient(Client):
             assert isinstance(con, DeviceClient)
             if con.root_topic in root_topic:
                 return con
+
