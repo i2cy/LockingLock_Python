@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ESP32S3LockingLock.iml" filepath="$PROJECT_DIR$/.idea/ESP32S3LockingLock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Nonebot-Plugin-LockingLock/.idea/NonebotPluginLockingLock.iml" filepath="$PROJECT_DIR$/../Nonebot-Plugin-LockingLock/.idea/NonebotPluginLockingLock.iml" />
     </modules>
   </component>
 </project>

@@ -1,2 +1,3 @@
 [console_scripts]
 i2llsrv = i2llservice.server:main
+

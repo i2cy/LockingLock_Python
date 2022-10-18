@@ -1,4 +1,3 @@
-LICENCE
 README.md
 setup.py
 i2llserver.egg-info/PKG-INFO
