@@ -1,3 +1,4 @@
+LICENCE
 README.md
 setup.py
 i2llserver.egg-info/PKG-INFO
@@ -10,3 +11,4 @@ i2llservice/__init__.py
 i2llservice/client.py
 i2llservice/config.py
 i2llservice/server.py
+i2llservice/utils.py
