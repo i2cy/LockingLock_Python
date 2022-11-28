@@ -1,0 +1,110 @@
+[2022-11-28 13:22:10] [INFO] [I2TCP] generating secured session RSA keychain
+[2022-11-28 13:22:11] [INFO] [I2TCP] server started at 0.0.0.0:8421
+[2022-11-28 13:22:11] [DBUG] [I2TCP] [watchdog] thread started
+[2022-11-28 13:22:11] [DBUG] [I2TCP] [mainloop] thread started
+[2022-11-28 13:22:11] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:13] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:22:14] [INFO] [I2TCP] new connection 127.0.0.1:61635 coming in
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] connected
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] authorized
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] [receiver] thread started
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] [watchdog] thread started
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] received package head: b'A\x00\x00\x80\x00\x80D\x91\x86\x83'
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] receiving data of total length 128
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] [receiver] new package received, buffer size now 0
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] session key received: b'\xdb\xb2\xac|\x0c\xde0\xe7\x9c/\xb92\x1c\xa0w \xce\xe8(\x92\x86\xcf\x9d\x00O\xa0\xc8X\x00/\xaa\t\x8b\x18\xfdz\xec4H\xa8\x176\x04 \xf7\x90F\x89jZ\xd7\xa4\x9e\xbb\xab\xa1\x17j\x0f\\\xce Y\x05'
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] secured connection built
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] received package head: b'A\x00\x00\x01\x00\x01\x9c.\xec\xce'
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] receiving data of total length 1
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] [receiver] new package received, buffer size now 0
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] [I2LL] received command: 01
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] received package head: b'A\x00\x00\n\x00\nC\x94\x90)'
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] receiving data of total length 10
+[2022-11-28 13:22:14] [DBUG] [I2TCP] [127.0.0.1:61635] [receiver] new package received, buffer size now 0
+[2022-11-28 13:22:15] [DBUG] [I2TCP] [127.0.0.1:61635] [I2LL] received command: 10657370333274657374
+[2022-11-28 13:22:15] [INFO] [I2TCP] [127.0.0.1:61635] [receiver] connection lost
+[2022-11-28 13:22:15] [DBUG] [I2TCP] [127.0.0.1:61635] [receiver] thread stopped
+[2022-11-28 13:22:15] [DBUG] [I2TCP] [127.0.0.1:61635] [watchdog] thread stopped
+[2022-11-28 13:22:18] [INFO] [I2TCP] new connection 127.0.0.1:61653 coming in
+[2022-11-28 13:22:18] [DBUG] [I2TCP] [127.0.0.1:61653] connected
+[2022-11-28 13:22:18] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:18] [WARN] [I2TCP] [127.0.0.1:61653] authentication process failure, [WinError 10054] 远程主机强迫关闭了一个现有的连接。
+[2022-11-28 13:22:19] [INFO] [I2TCP] new connection 127.0.0.1:61655 coming in
+[2022-11-28 13:22:19] [DBUG] [I2TCP] [127.0.0.1:61655] connected
+[2022-11-28 13:22:19] [WARN] [I2TCP] [127.0.0.1:61655] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:19] [INFO] [I2TCP] new connection 127.0.0.1:61657 coming in
+[2022-11-28 13:22:20] [DBUG] [I2TCP] [127.0.0.1:61657] connected
+[2022-11-28 13:22:20] [WARN] [I2TCP] [127.0.0.1:61657] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:20] [INFO] [I2TCP] new connection 127.0.0.1:61658 coming in
+[2022-11-28 13:22:20] [DBUG] [I2TCP] [127.0.0.1:61658] connected
+[2022-11-28 13:22:20] [WARN] [I2TCP] [127.0.0.1:61658] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:20] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:22:21] [INFO] [I2TCP] new connection 127.0.0.1:61659 coming in
+[2022-11-28 13:22:21] [DBUG] [I2TCP] [127.0.0.1:61659] connected
+[2022-11-28 13:22:21] [WARN] [I2TCP] [127.0.0.1:61659] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:21] [INFO] [I2TCP] new connection 127.0.0.1:61660 coming in
+[2022-11-28 13:22:21] [DBUG] [I2TCP] [127.0.0.1:61660] connected
+[2022-11-28 13:22:21] [WARN] [I2TCP] [127.0.0.1:61660] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:22] [INFO] [I2TCP] new connection 127.0.0.1:61661 coming in
+[2022-11-28 13:22:22] [DBUG] [I2TCP] [127.0.0.1:61661] connected
+[2022-11-28 13:22:22] [WARN] [I2TCP] [127.0.0.1:61661] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:22] [INFO] [I2TCP] new connection 127.0.0.1:61663 coming in
+[2022-11-28 13:22:22] [DBUG] [I2TCP] [127.0.0.1:61663] connected
+[2022-11-28 13:22:22] [WARN] [I2TCP] [127.0.0.1:61663] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:23] [INFO] [I2TCP] new connection 127.0.0.1:61664 coming in
+[2022-11-28 13:22:23] [DBUG] [I2TCP] [127.0.0.1:61664] connected
+[2022-11-28 13:22:23] [WARN] [I2TCP] [127.0.0.1:61664] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:23] [INFO] [I2TCP] new connection 127.0.0.1:61669 coming in
+[2022-11-28 13:22:23] [DBUG] [I2TCP] [127.0.0.1:61669] connected
+[2022-11-28 13:22:23] [WARN] [I2TCP] [127.0.0.1:61669] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:24] [INFO] [I2TCP] new connection 127.0.0.1:61670 coming in
+[2022-11-28 13:22:24] [DBUG] [I2TCP] [127.0.0.1:61670] connected
+[2022-11-28 13:22:24] [WARN] [I2TCP] [127.0.0.1:61670] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:24] [INFO] [I2TCP] new connection 127.0.0.1:61671 coming in
+[2022-11-28 13:22:24] [DBUG] [I2TCP] [127.0.0.1:61671] connected
+[2022-11-28 13:22:24] [WARN] [I2TCP] [127.0.0.1:61671] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:25] [INFO] [I2TCP] new connection 127.0.0.1:61672 coming in
+[2022-11-28 13:22:25] [DBUG] [I2TCP] [127.0.0.1:61672] connected
+[2022-11-28 13:22:26] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:28] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:22:34] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:36] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:22:41] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:43] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:22:45] [WARN] [I2TCP] [127.0.0.1:61672] authentication process failure, timed out
+[2022-11-28 13:22:45] [INFO] [I2TCP] new connection 127.0.0.1:61673 coming in
+[2022-11-28 13:22:45] [DBUG] [I2TCP] [127.0.0.1:61673] connected
+[2022-11-28 13:22:45] [WARN] [I2TCP] [127.0.0.1:61673] authentication process failure, [WinError 10053] 你的主机中的软件中止了一个已建立的连接。
+[2022-11-28 13:22:49] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:49] [INFO] [I2TCP] new connection 127.0.0.1:61702 coming in
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] connected
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] authorized
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] [receiver] thread started
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] [watchdog] thread started
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] received package head: b'A\x00\x00\x80\x00\x80D8\x1f\xb4'
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] receiving data of total length 128
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] [receiver] new package received, buffer size now 0
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] session key received: b'\xd6~:\xcd-\x11+\xc8\xce\xb1Z\xed\x8d\x90%\xa5\x8eX\xc6!\xc2\x0f\x1bS\xefx)J\x02P0{\x8d\xcd\xf5\xed\x92k\x1d\xb5\xe9^\x92@c\xcca\xccOF\xf8\x89\x84\x92\xfd\x80\xf7\xee;D\x93~\xacF'
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] secured connection built
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] received package head: b'A\x00\x00\x01\x00\x01\x9c\xdc^\xe7'
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] receiving data of total length 1
+[2022-11-28 13:22:49] [DBUG] [I2TCP] [127.0.0.1:61702] [receiver] new package received, buffer size now 0
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] [I2LL] received command: 01
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] received package head: b'A\x00\x00\n\x00\nCc\xd0\xca'
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] receiving data of total length 10
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] [receiver] new package received, buffer size now 0
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] [I2LL] received command: 10657370333274657374
+[2022-11-28 13:22:50] [INFO] [I2TCP] [127.0.0.1:61702] [receiver] connection lost
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] [receiver] thread stopped
+[2022-11-28 13:22:50] [DBUG] [I2TCP] [127.0.0.1:61702] [watchdog] thread stopped
+[2022-11-28 13:22:51] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:22:56] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:22:59] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:23:04] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:23:06] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:23:12] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:23:14] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:23:19] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:23:21] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds
+[2022-11-28 13:23:27] [INFO] [MQTT] connecting to MQTT server at 127.0.0.1:1883
+[2022-11-28 13:23:29] [EROR] [MQTT] failed to connect to MQTT server, [WinError 10061] 由于目标计算机积极拒绝，无法连接。, retrying in 5 seconds

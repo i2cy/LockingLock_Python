@@ -127,3 +127,13 @@ class I2LLClient(Client):
             if con.root_topic in root_topic:
                 return con
 
+if __name__ == '__main__':
+    clt = I2LLClient("i2cy.tech")
+    clt.connect()
+
+    if clt[0].isOnline():
+        clt[0].ringMotor()
+    else:
+        print("Device offline")
+
+    clt.reset()
